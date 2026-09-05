@@ -15,8 +15,68 @@ datasource db {
 
 model User {
   id        String   @id @default(uuid())
+  clerkId   String   @unique
   email     String   @unique
+  firstName String?
+  lastName  String?
   name      String?
+  imageUrl  String?
+  projects  Project[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Project {
+  id        String   @id @default(uuid())
+  name      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  messages  Message[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("projects")
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
+enum MessageType{
+  RESULT
+  ERROR
+}
+
+model Message {
+  id        String    @id @default(uuid())
+  content   String
+  role      MessageRole
+  type      MessageType
+  projectId String
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  fragments Fragment?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("messages")
+}
+
+model Fragment {
+  id        String   @id @default(uuid())
+  messageId String @unique
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  sandboxUrl String
+  title      String
+  files     Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("fragments")
 }
