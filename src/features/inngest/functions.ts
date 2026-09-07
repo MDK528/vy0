@@ -2,7 +2,7 @@ import { Sandbox } from "@e2b/code-interpreter";
 import { inngest } from "./client";
 import { prisma } from "@/lib/db";
 import { MessageRole, MessageType } from "@/generated/prisma/enums";
-import { createAgent, createNetwork, createState, createTool, gemini } from "@inngest/agent-kit"
+import { createAgent, createNetwork, createState, createTool, gemini, openai } from "@inngest/agent-kit"
 import { FRAGMENT_TITLE_PROMPT, PROMPT, RESPONSE_PROMPT } from "@/lib/prompts";
 import { agentOutputText, connectSandbox, lastAssistantTextMessageContent } from "./utils";
 import z from "zod"
@@ -59,25 +59,34 @@ export const codeAgentFunction = inngest.createFunction(
       {messages: previousMessages}
     )
     
-    const geminiModel = gemini({
-      model: "gemini-2.5-flash",
+    // const geminiModel = gemini({
+    //   model: "gemini-2.5-flash",
+    //   step,
+    //   apiKey: process.env.GEMINI_API_KEY,
+    //   defaultParameters: {
+    //     generationConfig: {
+    //       temperature: 0,
+    //       maxOutputTokens: 8192,
+    //       thinkingConfig: { thinkingBudget: 0 }
+    //     }
+    //   }
+    // } as Parameters<typeof gemini>[0])
+
+    const openaiModel = openai({
+      model: "gpt-5-mini",
       step,
-      apiKey: process.env.GEMINI_API_KEY,
+      apiKey: process.env.OPENAI_API_KEY,
       defaultParameters: {
-        generationConfig: {
-          temperature: 0,
-          maxOutputTokens: 8192,
-          thinkingConfig: { thinkingBudget: 0 }
-        }
+        max_completion_tokens: 8192,
       }
-    } as Parameters<typeof gemini>[0])
+    } as Parameters<typeof openai>[0])
 
 
     const codeAgent = createAgent({
       name: "code-agent", 
       description: "An expert coding agent", 
       system: PROMPT,
-      model: geminiModel,
+      model: openaiModel,
       tools: [
         createTool({
           name: "terminal",
@@ -214,7 +223,7 @@ export const codeAgentFunction = inngest.createFunction(
     console.log("result", result)
     const { summary, files } = result.state.data;
 
-    const makeTextAgent = (name: string, system: string) => createAgent({ name, system, model: geminiModel });
+    const makeTextAgent = (name: string, system: string) => createAgent({ name, system, model: openaiModel });
 
     const fragmentTitleGenerator = makeTextAgent("fragment-title-generator", FRAGMENT_TITLE_PROMPT);
     const responseGenerator = makeTextAgent("response-generator", RESPONSE_PROMPT);
