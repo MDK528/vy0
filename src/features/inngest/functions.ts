@@ -59,18 +59,18 @@ export const codeAgentFunction = inngest.createFunction(
       {messages: previousMessages}
     )
     
-    // const geminiModel = gemini({
-    //   model: "gemini-2.5-flash",
-    //   step,
-    //   apiKey: process.env.GEMINI_API_KEY,
-    //   defaultParameters: {
-    //     generationConfig: {
-    //       temperature: 0,
-    //       maxOutputTokens: 8192,
-    //       thinkingConfig: { thinkingBudget: 0 }
-    //     }
-    //   }
-    // } as Parameters<typeof gemini>[0])
+    const geminiModel = gemini({
+      model: "gemini-2.5-flash",
+      step,
+      apiKey: process.env.GEMINI_API_KEY,
+      defaultParameters: {
+        generationConfig: {
+          temperature: 0,
+          maxOutputTokens: 8192,
+          thinkingConfig: { thinkingBudget: 0 }
+        }
+      }
+    } as Parameters<typeof gemini>[0])
 
     const openaiModel = openai({
       model: "gpt-5-mini",
@@ -218,7 +218,7 @@ export const codeAgentFunction = inngest.createFunction(
       }
 
     });
-    // console.log("INNGEST EVENT:", JSON.stringify(event, null, 2));
+
     const result = await network.run(event.data.value, { state });
     console.log("result", result)
     const { summary, files } = result.state.data;

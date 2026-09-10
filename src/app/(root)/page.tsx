@@ -4,12 +4,6 @@ import { PromptInput } from "@/components/home/prompt-input";
 import { ProjectGrid } from "@/features/projects/components/project-grid";
 
 
-/**
- * Home (dashboard) page.
- *
- * Renders the decorative background, the glass navbar, the main prompt input for
- * starting a new build, and the grid of the user's existing projects.
- */
 export default function Home() {
 
   return (
